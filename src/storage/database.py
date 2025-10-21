@@ -1,52 +1,38 @@
-import os
-from contextlib import contextmanager
-from typing import Generator
-
+"""数据库连接管理"""
 from sqlalchemy import create_engine
-from sqlalchemy.orm import DeclarativeBase, scoped_session, sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
+from contextlib import contextmanager
+import os
 
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./data/scheduler.db")
+from .models import Base
 
-if DATABASE_URL.startswith("sqlite:///"):
-    db_path = DATABASE_URL.replace("sqlite:///", "", 1)
-    directory = os.path.dirname(db_path)
-    if directory:
-        os.makedirs(directory, exist_ok=True)
+# 数据库路径
+DB_DIR = "./data"
+DB_PATH = os.path.join(DB_DIR, "scheduler.db")
+DATABASE_URL = f"sqlite:///{DB_PATH}"
 
+# 创建引擎
+engine = create_engine(DATABASE_URL, echo=False)
 
-class Base(DeclarativeBase):
-    """Base class for SQLAlchemy models."""
-
-
-engine = create_engine(DATABASE_URL, future=True, echo=False)
-
-SessionLocal = scoped_session(
-    sessionmaker(
-        bind=engine,
-        autocommit=False,
-        autoflush=False,
-        expire_on_commit=False,
-        future=True,
-    )
-)
+# 创建会话工厂
+SessionLocal = sessionmaker(bind=engine)
 
 
-def init_db() -> None:
-    """Create database tables if they do not exist."""
-    import src.storage.models  # noqa: F401
-
+def init_db():
+    """初始化数据库"""
+    os.makedirs(DB_DIR, exist_ok=True)
     Base.metadata.create_all(bind=engine)
 
 
 @contextmanager
-def get_session() -> Generator:
-    """Provide a transactional scope for DB operations."""
-    session = SessionLocal()
+def get_db() -> Session:
+    """获取数据库会话（上下文管理器）"""
+    db = SessionLocal()
     try:
-        yield session
-        session.commit()
+        yield db
+        db.commit()
     except Exception:
-        session.rollback()
+        db.rollback()
         raise
     finally:
-        session.close()
+        db.close()

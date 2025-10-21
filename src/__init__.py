@@ -1,1 +1,1 @@
-"""Milestone 1 package initializer."""
+"""Personal Schedule Agent"""
