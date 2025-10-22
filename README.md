@@ -55,17 +55,42 @@ pip install -r requirements.txt
 
 ```bash
 OPENAI_API_KEY=your_api_key_here
+OPENAI_API_BASE=https://api.openai.com/v1
 OPENAI_MODEL=gpt-4o-mini
 ```
 
 ### 运行系统
 
+#### 方式一：使用 PlanningAgent（推荐 - 主控智能体）
 ```bash
 # 交互模式
-python src/main.py
+python main_planning.py
 
 # 演示模式
-python src/main.py demo
+python demo_planning.py
+```
+
+#### 方式二：使用 SchedulerAgent（日程管理）
+```bash
+# 交互模式
+python main.py
+
+# 演示模式
+python demo.py
+```
+
+#### 方式三：使用 SummaryAgent（日程分析）
+```bash
+# 交互模式
+python main_summary.py
+
+# 演示模式
+python demo_summary.py
+```
+
+#### 方式四：选择 Agent
+```bash
+python main_all.py
 ```
 
 ## 使用示例
@@ -121,41 +146,89 @@ result = agent.process("总结一下本周的表现")
 - 双向信息流动
 - 任务用时减少 20%
 
-### 长期记忆
+### 用户偏好管理
 
-- 向量数据库存储偏好
-- 语义相似度检索
-- 个性化推荐
-- 自动权重调整
+- 内存存储用户偏好
+- 个性化日程规划
+- 智能推荐
+- 自动应用偏好
 
 ## 项目结构
 
 ```
-src/
-├── agents/
-│   └── planning.py          # PlanningAgent 主控智能体
-├── graph/
-│   ├── state.py            # 状态定义
-│   └── schema.py           # 数据模型
-├── tools/
-│   ├── calendar_db.py      # 日程管理工具
-│   ├── preferences.py      # 偏好管理工具
-│   └── conflict_detector.py # 冲突检测
-├── storage/
-│   ├── database.py         # 数据库连接
-│   ├── models.py           # ORM 模型
-│   └── vector_store.py     # 向量存储
-└── main.py                 # 主入口
+personal_schedule_agent/
+├── main.py                    # SchedulerAgent 交互式入口
+├── main_summary.py            # SummaryAgent 交互式入口
+├── main_planning.py           # PlanningAgent 交互式入口（推荐）
+├── main_all.py                # 综合入口（可选择 Agent）
+├── demo.py                    # SchedulerAgent 演示
+├── demo_summary.py            # SummaryAgent 演示
+├── demo_planning.py           # PlanningAgent 演示
+├── config.py                  # 配置文件
+├── requirements.txt           # 依赖
+├── .env                       # 环境变量
+└── src/
+    ├── agents/
+    │   ├── scheduler.py       # SchedulerAgent（日程管理）
+    │   ├── summary.py         # SummaryAgent（日程分析）
+    │   └── planning.py        # PlanningAgent（主控）
+    ├── graph/
+    │   └── state.py           # 状态定义
+    ├── tools/
+    │   ├── scheduler_agent_tools.py  # 日程管理工具
+    │   ├── summary_agent_tools.py    # 分析工具
+    │   └── planning_agent_tools.py   # 规划工具
+    ├── storage/
+    │   ├── database.py        # 数据库连接
+    │   └── models.py          # ORM 模型
+    └── utils/
+        └── retry_helper.py    # 重试辅助工具
 ```
+
+## 功能特性
+
+### SchedulerAgent - 日程管理
+- ✅ 添加日程事件
+- ✅ 修改日程事件
+- ✅ 删除日程事件
+- ✅ 查询日程事件
+- ✅ 批量添加事件
+- ✅ 查询空闲时间
+- ✅ 自动冲突检测
+- ✅ 多种时间格式支持
+
+### SummaryAgent - 日程分析
+- ✅ 事件统计摘要
+- ✅ 时间分布分析
+- ✅ 活动类型统计
+- ✅ 时间使用分析
+- ✅ 智能建议生成
+- ✅ 趋势识别
+
+### PlanningAgent - 智能规划
+- ✅ 协调其他 Agent
+- ✅ 用户偏好管理
+- ✅ 智能任务分解
+- ✅ 意图识别
+- ✅ 多轮对话支持
+
+## API 限流处理
+
+项目已添加 API 限流处理机制：
+
+1. **演示脚本延时**：每个测试用例之间等待 3 秒
+2. **重试机制**：遇到 429 错误自动重试
+3. **配置文件**：可在 `config.py` 中调整延时参数
 
 ## 文档
 
 - [快速开始指南](QUICKSTART.md)
-- [系统架构说明](ARCHITECTURE.md)
+- [系统架构说明 V2](ARCHITECTURE_V2.md)
+- [架构更新说明](ARCHITECTURE_UPDATE.md)
 
 ## 性能指标
 
-| 指标 | 传统方案 | ReAct 方案 | 提升 |
+| 指标 | 传统方案 | 三Agent协作 | 提升 |
 |------|---------|-----------|------|
 | 任务成功率 | 75% | 92% | +17% |
 | 平均用时 | 100% | 80% | -20% |
@@ -164,3 +237,4 @@ src/
 ## 许可证
 
 MIT License
+
