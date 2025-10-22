@@ -1,4 +1,4 @@
-"""演示脚本 - 自动运行测试用例"""
+"""SummaryAgent 演示脚本 - 自动运行测试用例"""
 import os
 import time
 from dotenv import load_dotenv
@@ -8,7 +8,8 @@ from datetime import datetime, timedelta
 load_dotenv()
 
 from src.storage.database import init_db
-from src.agents.scheduler import SchedulerAgentRunner
+from src.agents.summary import SummaryAgentRunner
+
 
 
 def main():
@@ -19,23 +20,25 @@ def main():
     print("✅ 数据库初始化完成\n")
 
     # 创建 Agent
-    print("🤖 创建 SchedulerAgent...")
-    agent = SchedulerAgentRunner()
+    print("📊 创建 SummaryAgent...")
+    agent = SummaryAgentRunner()
     print("✅ Agent 创建完成\n")
 
-    # 计算明天的日期
-    tomorrow = (datetime.now() + timedelta(days=1)).strftime("%Y-%m-%d")
+    # 计算日期范围
+    today = datetime.now().strftime("%Y-%m-%d")
+    yesterday = (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d")
+    week_ago = (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
     
     # 测试用例
     test_cases = [
-        f"添加{tomorrow}上午9点到10点的团队会议",
-        f"查询{tomorrow}的所有日程",
-        f"添加{tomorrow}上午9点30分到10点30分的项目讨论",  # 会有冲突
-        f"查询{tomorrow}的空闲时间",
+        "总结一下最近的日程安排",
+        f"分析一下 {week_ago} 到 {today} 的时间使用情况",
+        "我最常做什么活动？",
+        f"查看 {yesterday} 到 {today} 的所有事件详情",
     ]
 
     print("="*60)
-    print("开始演示 SchedulerAgent")
+    print("开始演示 SummaryAgent")
     print("="*60)
 
     for i, test_input in enumerate(test_cases, 1):
